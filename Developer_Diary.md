@@ -25,3 +25,35 @@ To establish a well-framed financial problem in business/user terms, set up the 
 * **Security & Environment Setup:** Created a free API key in Google AI Studio under the `Default Gemini Project`. I explicitly stored the key inside Google Colab's **Secrets (Key icon)** tab as `GEMINI_API_KEY` rather than hardcoding it in python code or committing it to GitHub.
 
 ---
+## Week 2: Custom Analytical Tool & Pandas Logic
+**Date:** 6th October 2026
+
+### 1. Objective
+Design a custom Python function (`analyze_student_finances`) that ingests a transaction CSV, aggregates category totals using `pandas`, and returns a formatted budget summary.
+
+### 2. AI Collaboration & Prompts Used
+* **Prompt Submitted to AI:**  
+  > *"Write a Python function using pandas that takes a CSV file containing 'Category' and 'Amount' columns and a weekly income numeric input, then returns total spending, remaining balance, and aggregated spending by category."*
+* **AI Output Summary:**  
+  The AI provided code utilizing `pd.read_csv()` and `df.groupby('Category')['Amount'].sum()`.
+
+### 3. Key Design Decisions & Reflections
+* **What I Kept:** Kept `pandas` for grouping transaction categories and converting the result into a native Python dictionary (`.to_dict()`) for custom text formatting.
+* **What I Modified & Refined:** 
+  1. Added input validation to check if `weekly_income < 0` or if mandatory columns (`Category`, `Amount`) were missing from the uploaded file.
+  2. Wrapped data conversions in `try-except ValueError` and `try-except Exception` blocks to return clear error text rather than allowing unhandled crashes.
+* **Approach Rejected:** The AI suggested using `df.fillna(0)` to auto-fill missing values quietly. I rejected this because silent modification of financial data can disguise user logging errors; raising explicit feedback is far safer.
+
+---
+
+## Week 3: Model Troubleshooting, Resilient AI Grounding & UI Integration
+**Date:** 12th October 2026
+
+### 1. Objective
+Connect the custom financial output to Google's Gemini API, build a Gradio web interface, write assertion unit tests, and resolve live API server errors.
+
+### 2. Bugs Found & Fixed (Evidence of Debugging for R5)
+* **Bug 1 (404 NOT_FOUND):** Calling `gemini-2.5-flash` caused a `404 NOT_FOUND` error because Google retired that specific identifier.  
+  * *Fix:* Updated the API request string to use the official `gemini-flash-latest` alias, ensuring automatic routing to active free-tier Flash models.
+* **Bug 2 (503 UNAVAILABLE):** During live testing, Google's free API endpoint returned `503 UNAVAILABLE` due to server capacity limits.  
+  * *Fix:* Updated `ask_finance_assistant` to include a candidate model list (`gemini-flash-latest`, `gemini-2.0-flash`, `gemini-1.5-flash`) with a `time.sleep(2)` retry loop so temporary server spikes don't crash the user interface.
