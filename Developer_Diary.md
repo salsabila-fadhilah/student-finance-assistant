@@ -52,7 +52,20 @@ Design a custom Python function (`analyze_student_finances`) that ingests a tran
 ### 1. Objective
 Connect the custom financial output to Google's Gemini API, build a Gradio web interface, write assertion unit tests, and resolve live API server errors.
 
-### 2. Bugs Found & Fixed (Evidence of Debugging for R5)
+### 2. AI Collaboration & Prompts Used
+* **Prompt Submitted to AI:**  
+  > *"How do I build a Gradio app that passes the calculated text output from my finance tool into the prompt sent to Google Gemini so the AI answers questions based on my actual budget numbers, and how do I handle 503 server demand errors?"*
+* **AI Output Summary:**  
+  The AI provided code combining the system persona, the financial summary text string, and the user's query into a single prompt string sent to `client.models.generate_content()`, along with a basic try-except error structure.
+
+### 3. Key Design Decisions & Implementation Details
+* **Persona & Guardrails (R1):** Defined the system persona as `"UniBudget Coach"`—an encouraging financial counselor for university students. I added explicit guardrail instructions to ensure that if the user asks off-topic or non-financial questions, the model politely redirects them back to student budgeting.
+* **Data Grounding (R2):** Passed the generated summary string (`financial_context`) directly into the Gemini prompt template so that response advice is grounded in the user's explicit weekly numbers rather than generic financial advice.
+* **Interface Design (R4):** Built a two-column Gradio layout (`gr.Blocks`) separating financial data analysis on the top/left from the interactive AI assistant chat on the bottom/right.
+* **What I Kept vs. Modified:** I kept the core Gradio block structure recommended by the AI, but I heavily modified the AI call wrapper to handle live server errors gracefully instead of crashing the interface.
+* **Approach Rejected:** The AI initially suggested using a permanent streaming chat history component (`gr.ChatInterface`). I rejected this because our application is designed around static, uploaded weekly budget summaries, making clean text box inputs and outputs much more reliable and easier for a non-programmer student to use.
+
+### 4. Bugs Found & Fixed (Evidence of Debugging for R5)
 * **Bug 1 (404 NOT_FOUND):** Calling `gemini-2.5-flash` caused a `404 NOT_FOUND` error because Google retired that specific identifier.  
   * *Fix:* Updated the API request string to use the official `gemini-flash-latest` alias, ensuring automatic routing to active free-tier Flash models.
 * **Bug 2 (503 UNAVAILABLE):** During live testing, Google's free API endpoint returned `503 UNAVAILABLE` due to server capacity limits.  
